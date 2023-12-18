@@ -1,0 +1,13 @@
+{
+    "python.autoComplete.extraPaths": [
+        "./app"
+    ],
+    "python.analysis.extraPaths": [
+        "./app"
+    ],
+    "files.exclude": {
+        "*/__pycache__": true,
+        "*/*/__pycache__": true,
+        "*.egg-info": true
+    }
+}
