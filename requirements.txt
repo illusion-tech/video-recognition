@@ -1,7 +1,6 @@
-requests
-fastapi
+fastapi 
 uvicorn
-python-multipart
-# FileResponse依赖
-aiofiles
-loguru
+ultralytics
+opencv-python-headless 
+numpy
+python-multipart   
