@@ -2,20 +2,52 @@ import os
 import cv2
 import uuid
 import numpy as np
+from enum import Enum
+from pydantic import BaseModel
 from typing import List
 from ultralytics import YOLO
 from datetime import datetime
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 from ultralytics.models.sam import Predictor as SAMPredictor
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 # model = YOLO("models/sam_b.pt")
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+class DetectionType(Enum):
+    CoarseScreen = 0
+    BiologicalPoolFirst= 1
+    BiologicalPoolSecond = 2
+    EfficientPoolsFirst = 3
+    EfficientPoolsSecond = 4 
+
+
+detection_map = {
+    DetectionType.CoarseScreen: [[226, 78, 344, 320], [347, 79, 470, 336]],
+    DetectionType.BiologicalPoolFirst: [0, 180, 955, 536],
+    DetectionType.BiologicalPoolSecond: [0, 180, 955, 536],
+    DetectionType.EfficientPoolsFirst: [294, 163, 726, 502],
+    DetectionType.EfficientPoolsSecond: [283, 150, 634, 538],
+
+}
+
+class DetectionInput(BaseModel):
+    detection_type: DetectionType
+
 @app.post("/detect")
-async def predict(type: int, file: UploadFile = File(...)):
+async def predict(detection_type: DetectionInput, file: UploadFile = File(...)):
     try:
+        print(detection_type)
         image_bytes = await file.read()
         image = np.frombuffer(image_bytes, dtype=np.uint8)
         image = cv2.imdecode(image, cv2.IMREAD_COLOR)
@@ -26,12 +58,10 @@ async def predict(type: int, file: UploadFile = File(...)):
 
         # 设置图像
         predictor.set_image(image)  # 使用图像文件设置
-        bboxes = [[226, 78, 344, 320], [347, 79, 470, 336]] if type==0 else [0, 180, 955, 536] if type==1 else [283, 150, 634, 538]
+        bboxes = detection_map.get(detection_type.detection_type)
         result = predictor(bboxes=bboxes)
         # 重置图像  
         predictor.reset_image()
-
-        # result = model(image)
 
         date = datetime.now().strftime("%Y%m%d")
         predict_path = os.path.join("data/predict/", date)
