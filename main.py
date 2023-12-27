@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 
-# model = YOLO("models/sam_b.pt")
+model = YOLO("models/best.pt")
 app = FastAPI()
 
 app.add_middleware(
@@ -45,23 +45,13 @@ class DetectionInput(BaseModel):
     detection_type: DetectionType
 
 @app.post("/detect")
-async def predict(detection_type: DetectionInput, file: UploadFile = File(...)):
+async def predict(file: UploadFile = File(...)):
     try:
-        print(detection_type)
         image_bytes = await file.read()
         image = np.frombuffer(image_bytes, dtype=np.uint8)
         image = cv2.imdecode(image, cv2.IMREAD_COLOR)
 
-        # 创建 SAMPredictor
-        overrides = dict(conf=0.25, task='segment', mode='predict', imgsz=1024, model="models/sam_b.pt")
-        predictor = SAMPredictor(overrides=overrides)
-
-        # 设置图像
-        predictor.set_image(image)  # 使用图像文件设置
-        bboxes = detection_map.get(detection_type.detection_type)
-        result = predictor(bboxes=bboxes)
-        # 重置图像  
-        predictor.reset_image()
+        result = model(image)
 
         date = datetime.now().strftime("%Y%m%d")
         predict_path = os.path.join("data/predict/", date)
