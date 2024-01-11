@@ -9,10 +9,7 @@ from ultralytics import YOLO
 from datetime import datetime
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
-from ultralytics.models.sam import Predictor as SAMPredictor
 from fastapi.middleware.cors import CORSMiddleware
-
-
 
 model = YOLO("models/best.pt")
 app = FastAPI()
@@ -30,16 +27,6 @@ class DetectionType(Enum):
     BiologicalPoolSecond = 2
     EfficientPoolsFirst = 3
     EfficientPoolsSecond = 4 
-
-
-detection_map = {
-    DetectionType.CoarseScreen: [[226, 78, 344, 320], [347, 79, 470, 336]],
-    DetectionType.BiologicalPoolFirst: [0, 180, 955, 536],
-    DetectionType.BiologicalPoolSecond: [0, 180, 955, 536],
-    DetectionType.EfficientPoolsFirst: [294, 163, 726, 502],
-    DetectionType.EfficientPoolsSecond: [283, 150, 634, 538],
-
-}
 
 class DetectionInput(BaseModel):
     detection_type: DetectionType
