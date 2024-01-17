@@ -4,3 +4,6 @@ ultralytics
 opencv-python-headless 
 numpy
 python-multipart   
+pycryptodome==3.10.1
+esdk-obs-python
+python-dotenv

@@ -134,3 +134,5 @@ app/settings.py
 # 图片数据
 .vscode
 /data/predict/*
+*.jpg
+*.png
