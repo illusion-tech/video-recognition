@@ -1,6 +1,7 @@
 import os
 import cv2
 import uuid
+import time
 import numpy as np
 from pydantic import BaseModel
 from typing import List
@@ -50,7 +51,7 @@ async def predict(body: DetectBody):
         detection = False if len(detectNames) == 0 or 'matter' in detectNames else True
 
         date = datetime.now().strftime("%Y%m%d")
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        timestamp = int(time.time())
         predict_path = os.path.join("data/predict/", date if detection else ('matter/' + date))
         if not os.path.exists(predict_path):
             os.makedirs(predict_path)
@@ -65,9 +66,9 @@ async def predict(body: DetectBody):
         headers.contentType = 'image/jpeg'
         objectKey = 'yolov8-predict/' + (date if detection else ('matter/' + date)) + '/' + filename
         resp = obsClient.putFile(
-            bucketName, 
-            objectKey, 
-            file_path=predict_path, 
+            bucketName,
+            objectKey,
+            file_path=predict_path,
             headers=headers
         )
         if resp.status < 300:
